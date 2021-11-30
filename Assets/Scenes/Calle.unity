@@ -8585,7 +8585,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-16878
+  m_Name: pb_Mesh-1442
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -9116,6 +9116,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spheres:
   - {fileID: 1302456428}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
+  - {fileID: 1676691698}
   timeToUpdate: 3
   dt: 0
 --- !u!4 &1414631597
@@ -9732,6 +9751,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9ece6282cbf2b43409be328c6433c4e4, type: 3}
+--- !u!1 &1676691698 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2048080273473244741, guid: 0ed34da650ffa51498dd3e69716817c9, type: 3}
+  m_PrefabInstance: {fileID: 2048080272219598967}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1706113158
 GameObject:
   m_ObjectHideFlags: 0

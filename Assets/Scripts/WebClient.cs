@@ -1,8 +1,4 @@
-﻿// TC2008B Modelación de Sistemas Multiagentes con gráficas computacionales
-// C# client to interact with Python server via POST
-// Sergio Ruiz-Loza, Ph.D. March 2021
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -23,7 +19,8 @@ public class WebClient : MonoBehaviour
     {
         WWWForm form = new WWWForm();
         form.AddField("bundle", "the data");
-        string url = "http://localhost:8686";
+        //string url = "http://localhost:8585";
+        string url = "http://agentesinteligentes-e4.us-south.cf.appdomain.cloud/updatePositions";
         //using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         using (UnityWebRequest www = UnityWebRequest.Get(url))
         {
@@ -99,7 +96,7 @@ public class WebClient : MonoBehaviour
         timer -= Time.deltaTime;
         dt = 1.0f - (timer / timeToUpdate);
 
-        if(timer < 0)
+        if (timer < 0)
         {
 #if UNITY_EDITOR
             timer = timeToUpdate; // reset the timer
