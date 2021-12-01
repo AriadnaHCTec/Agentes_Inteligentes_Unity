@@ -20,7 +20,7 @@ public class NewClient : MonoBehaviour
         UnityWebRequest www = UnityWebRequest.Get("http://agentesinteligentes-e4.us-south.cf.appdomain.cloud/updatePositions");
         yield return www.Send();
 
-        if (www.isError)
+        if (www.isNetworkError)
         {
             Debug.Log(www.error);
         }
@@ -67,7 +67,7 @@ public class NewClient : MonoBehaviour
         UnityWebRequest www = UnityWebRequest.Get("https://agentesinteligentes-e4.us-south.cf.appdomain.cloud/trafficLight");
         yield return www.Send();
 
-        if (www.isError)
+        if (www.isNetworkError)
         {
             Debug.Log(www.error);
         }
