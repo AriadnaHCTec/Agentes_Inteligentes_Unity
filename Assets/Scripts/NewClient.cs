@@ -13,7 +13,9 @@ public class NewClient : MonoBehaviour
     public float timeToUpdate = 5.0f;
     private float timer;
     public float dt;
-
+    private bool newData = false;
+    private bool timerRestarted = false;
+    private float timer2 = 0;
     // IEnumerator - yield return
     IEnumerator SendData()
     {
@@ -56,6 +58,8 @@ public class NewClient : MonoBehaviour
                 poss.Add(newPositions[s]);
             }
             positions.Add(poss);
+            newData = true;
+            timerRestarted = false;
         }
       
     }
@@ -133,11 +137,26 @@ public class NewClient : MonoBehaviour
         timer -= Time.deltaTime;
         dt = 1.0f - (timer / timeToUpdate);
 
+        if(!newData && timerRestarted)
+        {
+            timer2 += Time.deltaTime;
+            dt = 1f;
+        }
+        else
+        {
+            if(timer2 != 0)
+            {
+                print("Time: "+timer2);
+                timer2 = 0;
+            }
+        }
+        
         if (timer < 0)
         {
 #if UNITY_EDITOR
-            dt = 1;
-            timer = timeToUpdate; // reset the timer            
+            //dt = 1;
+            timer = timeToUpdate; // reset the timer 
+            timerRestarted = true;         
             StartCoroutine(SendData());
             StartCoroutine(SendLights());
 #endif
@@ -164,5 +183,6 @@ public class NewClient : MonoBehaviour
                 
             }
         }
+        newData = false;
     }
 }
