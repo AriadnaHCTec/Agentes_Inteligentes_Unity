@@ -60,6 +60,11 @@ public class NewClient : MonoBehaviour
       
     }
 
+    IEnumerator Restarts()
+    {
+        UnityWebRequest www = UnityWebRequest.Get("https://agentesinteligentes-e4.us-south.cf.appdomain.cloud");
+        yield return www.Send();        
+    }
 
 
     IEnumerator SendLights()
@@ -77,11 +82,11 @@ public class NewClient : MonoBehaviour
             //Debug.Log(www.downloadHandler.text);
 
             string txt = www.downloadHandler.text.Replace('\'', '\"');
-            Debug.Log(txt[11] + " " + txt[25] + " " + txt[39] + " " + txt[53]);
+            //Debug.Log(txt[11] + " " + txt[25] + " " + txt[39] + " " + txt[53]);
             changeColor(0, txt[11] - '0');
             changeColor(1, txt[25] - '0');
-            /*changeColor(2, txt[39] - '0');
-            changeColor(3, txt[53] - '0');*/
+            changeColor(2, txt[39] - '0');
+            changeColor(3, txt[53] - '0');
         }
     }
 
@@ -111,7 +116,8 @@ public class NewClient : MonoBehaviour
     {
         positions = new List<List<Vector3>>();
 #if UNITY_EDITOR
-        //StartCoroutine(SendData());
+        StartCoroutine(Restarts());
+        StartCoroutine(SendData());
         StartCoroutine(SendLights());
         timer = timeToUpdate;
 #endif
@@ -130,14 +136,15 @@ public class NewClient : MonoBehaviour
         if (timer < 0)
         {
 #if UNITY_EDITOR
-            timer = timeToUpdate; // reset the timer
-            //StartCoroutine(SendData());
+            dt = 1;
+            timer = timeToUpdate; // reset the timer            
+            StartCoroutine(SendData());
             StartCoroutine(SendLights());
 #endif
         }
 
 
-        /*if (positions.Count > 1)
+        if (positions.Count > 1)
         {
             for (int s = 0; s < spheres.Length; s++)
             {
@@ -149,9 +156,13 @@ public class NewClient : MonoBehaviour
                 Vector3 interpolated = Vector3.Lerp(prevLast[s], last[s], dt);
                 spheres[s].transform.localPosition = interpolated;
 
-                Vector3 dir = last[s] - prevLast[s];
-                spheres[s].transform.rotation = Quaternion.LookRotation(dir);
+                if (last[s] != prevLast[s])
+                {
+                    Vector3 dir = last[s] - prevLast[s];
+                    spheres[s].transform.rotation = Quaternion.LookRotation(dir);
+                }
+                
             }
-        }*/
+        }
     }
 }
