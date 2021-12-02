@@ -10,15 +10,62 @@ public class NewClient : MonoBehaviour
 
     public GameObject[] spheres;
     public GameObject[] lights;
-    public float timeToUpdate = 5.0f;
+    public float timeToUpdate = 1.0f;
     private float timer;
     public float dt;
-    private bool newData = false;
-    private bool timerRestarted = false;
+    private bool dataRequested = false;
+    private bool dataReceived = false;
     private float timer2 = 0;
-    // IEnumerator - yield return
+    public int bufferSize = 3;
+    private int posCount = 0;
+    private float timer3 = 0;
+    private int id = 0;
+    public bool smoothen = false;
+
+    void Smoothen()
+    {   
+        bool insertList = false;
+        List<Vector3> list1 = positions[positions.Count - 2];
+        List<Vector3> list2 = positions[positions.Count - 1];
+        List<Vector3> list3 = new List<Vector3>();
+
+        for(int i = 0; i < spheres.Length; i++)
+        {
+            Vector3 p0 = list1[i];
+            Vector3 p1 = list2[i];
+            Vector3 r = p1 - p0;
+            Vector3 p01 = new Vector3(0,0,0);
+            for(int j = 0; j < 3; j++)
+            {
+                if(r[j] == 2)
+                {
+                    p01[j] = p0[j]+1;
+                    insertList = true;
+                }
+                else if(r[j] == -2)
+                {
+                    p01[j] = p0[j]-1;
+                    insertList = true;
+                }
+                else
+                    p01[j] = p1[j];
+            }
+            list3.Add(p01);
+        }
+
+        if(insertList)
+        {
+            print("Active");
+            positions.RemoveAt(positions.Count - 1);
+            positions.Add(list3);
+            positions.Add(list2);
+        }
+    }
+
     IEnumerator SendData()
-    {
+    {   
+        int localId = id;
+        id++;
         UnityWebRequest www = UnityWebRequest.Get("http://agentesinteligentes-e4.us-south.cf.appdomain.cloud/updatePositions");
         yield return www.Send();
 
@@ -57,9 +104,14 @@ public class NewClient : MonoBehaviour
                 //spheres[s].transform.localPosition = newPositions[s];
                 poss.Add(newPositions[s]);
             }
+
             positions.Add(poss);
-            newData = true;
-            timerRestarted = false;
+            dataReceived = true;
+            dataRequested = false;
+            if(positions.Count > 1 && smoothen)
+                Smoothen();
+            //print(localId);
+            //print(positions[positions.Count-1][0]);
         }
       
     }
@@ -115,66 +167,72 @@ public class NewClient : MonoBehaviour
             green.SetActive(true);
         }
     }
-    // Start is called before the first frame update
+
+    // Start Method()
     void Start()
     {
         positions = new List<List<Vector3>>();
 #if UNITY_EDITOR
         StartCoroutine(Restarts());
-        StartCoroutine(SendData());
+        for(int i = 0; i < bufferSize; i++)
+            StartCoroutine(SendData());
         StartCoroutine(SendLights());
         timer = timeToUpdate;
+        timer2 = timer;
 #endif
     }
 
-    // Update is called once per frame
+    // Update Method()
     void Update()
     {
-        /*
-         *    5 -------- 100
-         *    timer ----  ? 
-         */
+        // Update timers
         timer -= Time.deltaTime;
-        dt = 1.0f - (timer / timeToUpdate);
+        timer2 -= Time.deltaTime;
 
-        if(!newData && timerRestarted)
+        // Set timer when data is requested
+        if(dataRequested)
+            timer3 += Time.deltaTime;
+
+        // End timer and consider it's duration for providing the following dataset on time
+        if(dataReceived)
         {
-            timer2 += Time.deltaTime;
-            dt = 1f;
+            timer2 -= timer3;
+            timer3 = 0;
         }
-        else
-        {
-            if(timer2 != 0)
-            {
-                print("Time: "+timer2);
-                timer2 = 0;
-            }
-        }
-        
-        if (timer < 0)
+
+        // Ask for a new dataset
+        if (timer2 < 0)
         {
 #if UNITY_EDITOR
             //dt = 1;
-            timer = timeToUpdate; // reset the timer 
-            timerRestarted = true;         
+            timer2 = timeToUpdate; // reset the timer 
+            //timerRestarted = true;         
             StartCoroutine(SendData());
             StartCoroutine(SendLights());
+            dataRequested = true;
 #endif
         }
 
+        // Change the data that is currently interpolating
+        if(timer < 0)
+        {
+            timer = timeToUpdate;
+            posCount++;
+        }
 
-        if (positions.Count > 1)
+        dt = 1.0f - (timer / timeToUpdate);
+
+        if (positions.Count > bufferSize-1)
         {
             for (int s = 0; s < spheres.Length; s++)
             {
-                // Get the last position for s
-                List<Vector3> last = positions[positions.Count - 1];
-                // Get the previous to last position for s
-                List<Vector3> prevLast = positions[positions.Count - 2];
-                // Interpolate using dt
+                List<Vector3> last = positions[posCount + 1];
+                List<Vector3> prevLast = positions[posCount];
+ 
                 Vector3 interpolated = Vector3.Lerp(prevLast[s], last[s], dt);
                 spheres[s].transform.localPosition = interpolated;
 
+                // direction changed?
                 if (last[s] != prevLast[s])
                 {
                     Vector3 dir = last[s] - prevLast[s];
@@ -183,6 +241,6 @@ public class NewClient : MonoBehaviour
                 
             }
         }
-        newData = false;
+        dataReceived = false;
     }
 }
